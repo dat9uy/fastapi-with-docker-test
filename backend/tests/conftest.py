@@ -9,6 +9,8 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 
 from app.db.migrate import Migrate
+from app.db.repositories.cleanings import CleaningsRepository
+from app.models.cleaning import CleaningInDB, CleaningCreate
 from tests.helpers import pull_image, ping_postgres
 
 
@@ -52,7 +54,7 @@ def postgres_container(docker: pydocker.APIClient):
         docker.remove_container(container["Id"])
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 async def apply_migrations(postgres_container: None) -> None:
     db_migrate = Migrate(db_uri=os.environ["DATABASE_URL"])
 
@@ -80,3 +82,17 @@ async def client(app: FastAPI) -> AsyncClient:
                 app=app, base_url="http://testserver", headers={"Content-Type": "application/json"},
         ) as client:
             yield client
+
+
+@pytest.fixture
+async def sample_cleaning(db: Database) -> CleaningInDB:
+    cleaning_repo = CleaningsRepository(db)
+
+    new_cleaning = CleaningCreate(
+        name="fake cleaning name",
+        description="fake cleaning description",
+        price=9.99,
+        cleaning_type="spot_clean",
+    )
+
+    return await cleaning_repo.create_cleaning(new_cleaning=new_cleaning)

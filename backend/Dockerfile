@@ -15,7 +15,8 @@ COPY poetry.lock pyproject.toml ./backend/
 WORKDIR /backend
 
 RUN pip install poetry==1.1.* && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-dev
+    poetry config virtualenvs.create false
+
+RUN poetry install --no-dev
 
 COPY . /backend

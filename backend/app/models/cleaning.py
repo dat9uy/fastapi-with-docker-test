@@ -22,6 +22,10 @@ class CleaningCreate(CleaningBase):
     price: float
 
 
+class CleaningUpdate(CleaningBase):
+    cleaning_type: Optional[CleaningType]
+
+
 class CleaningInDB(IDModelMixin, CleaningBase):
     name: str
     price: float
